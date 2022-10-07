@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('telResidencial', 10)->nullable();
             $table->string('telComercial', 10)->nullable();
 
-            $table->unsignedBigInteger('fk_cliente_id');
-            $table->foreign('fk_cliente_id')->references('id')->on('cliente');
+            $table->unsignedBigInteger('cliente_id');
+            $table->foreign('cliente_id')->references('id')->on('cliente');
 
             $table->timestamps();
         });

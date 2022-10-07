@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Telefone extends Model
 {
     use HasFactory;
+
+    protected $table = 'telefone';
+
+    protected $fillable = ['celular', 'telResidencial', 'telComercial'];
+
+    public function cliet()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 }
