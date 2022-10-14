@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Utils\ClearString;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Enums\GenderEnum;
+use Illuminate\Validation\Rules\Enum;
 
 class ClienteController extends Controller
 {
@@ -42,8 +45,8 @@ class ClienteController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nome' => 'required|max:255',
-            'genero' => 'required',
-            'cpf' => 'required|cpf',
+            'genero' => [new Enum(GenderEnum::class), 'required'],
+            'cpf' => 'required',
             'rg' => 'required',
             'cep' => 'required',
             'logradouro' => 'required',
@@ -65,7 +68,7 @@ class ClienteController extends Controller
 
         $cliente->nome = $request->nome;
         $cliente->genero = $request->genero;
-        $cliente->cpf = $request->cpf;
+        $cliente->cpf = ClearString::onlyNumber($request->cpf);
         $cliente->rg = $request->rg;
         $cliente->cep = $request->cep;
         $cliente->logradouro = $request->logradouro;
