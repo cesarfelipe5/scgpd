@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user/{id}', [UserController::class, 'show']);
 Route::get('/cliente/{id}', [ClienteController::class, 'show']);
+Route::post('/cliente', [ClienteController::class, 'store']);
 
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('/', function () {

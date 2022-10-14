@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ClienteController extends Controller
 {
@@ -35,7 +36,48 @@ class ClienteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $errors = array();
+
+        // var_dump('$request', $request->nome);
+
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|max:255',
+            'genero' => 'required',
+            'cpf' => 'required|cpf',
+            'rg' => 'required',
+            'cep' => 'required',
+            'logradouro' => 'required',
+            'numero' => 'required',
+            'bairro' => 'required',
+            'uf' => 'required|max:2',
+            'cidade' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        $cliente = new Cliente;
+
+        $cliente->nome = $request->nome;
+        $cliente->genero = $request->genero;
+        $cliente->cpf = $request->cpf;
+        $cliente->rg = $request->rg;
+        $cliente->cep = $request->cep;
+        $cliente->logradouro = $request->logradouro;
+        $cliente->numero = $request->numero;
+        $cliente->bairro = $request->bairro;
+        $cliente->uf = $request->uf;
+        $cliente->cidade = $request->cidade;
+
+        $cliente->save();
+
+
+        return $cliente->id;
     }
 
     /**
