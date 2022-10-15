@@ -21,8 +21,17 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/user/{id}', [UserController::class, 'show']);
-Route::get('/cliente/{id}', [ClienteController::class, 'show']);
-Route::post('/cliente', [ClienteController::class, 'store']);
+
+
+Route::prefix('cliente')->group(function () {
+    Route::get('', [ClienteController::class, 'index']);
+    Route::get('/list', [ClienteController::class, 'list']);
+    Route::get('/{id}', [ClienteController::class, 'show']);
+    Route::post('', [ClienteController::class, 'store']);
+    Route::put('/{id}', [ClienteController::class, 'update']);
+    Route::delete('/{id}', [ClienteController::class, 'destroy']);
+});
+
 
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('/', function () {

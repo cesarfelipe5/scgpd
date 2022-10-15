@@ -7,6 +7,8 @@ use App\Utils\ClearString;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\GenderEnum;
+use App\Models\Telefone;
+use App\Utils\ValidatorRequest;
 use Illuminate\Validation\Rules\Enum;
 
 class ClienteController extends Controller
@@ -18,7 +20,13 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        //
+        return Cliente::with('phone')->paginate(15);
+    }
+
+
+    public function list()
+    {
+        return Cliente::get();
     }
 
     /**
@@ -28,7 +36,6 @@ class ClienteController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -41,11 +48,9 @@ class ClienteController extends Controller
     {
         $errors = array();
 
-        // var_dump('$request', $request->nome);
-
-        $validator = Validator::make($request->all(), [
+        $rules = [
             'nome' => 'required|max:255',
-            'genero' => [new Enum(GenderEnum::class), 'required'],
+            'genero' => ['required', new Enum(GenderEnum::class)],
             'cpf' => 'required',
             'rg' => 'required',
             'cep' => 'required',
@@ -54,7 +59,9 @@ class ClienteController extends Controller
             'bairro' => 'required',
             'uf' => 'required|max:2',
             'cidade' => 'required',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             foreach ($validator->errors()->getMessages() as $item) {
@@ -65,6 +72,7 @@ class ClienteController extends Controller
         }
 
         $cliente = new Cliente;
+        $telefone = new Telefone;
 
         $cliente->nome = $request->nome;
         $cliente->genero = $request->genero;
@@ -79,8 +87,14 @@ class ClienteController extends Controller
 
         $cliente->save();
 
+        $telefone->celular = $request->celular;
+        $telefone->telResidencial = $request->telResidencial;
+        $telefone->telComercial = $request->telComercial;
+        $telefone->cliente_id = $cliente->id;
 
-        return $cliente->id;
+        $telefone->save();
+
+        return Cliente::with('phone')->findOrFail($cliente->id);
     }
 
     /**
@@ -112,9 +126,50 @@ class ClienteController extends Controller
      * @param  \App\Models\Cliente  $cliente
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Cliente $cliente)
+    public function update(int $id, Request $request)
     {
-        //
+
+        $errors = array();
+
+        $rules = [
+            'nome' => 'max:255',
+            'genero' => new Enum(GenderEnum::class),
+            'uf' => 'max:2',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        $cliente = Cliente::findOrFail($id);
+
+        $telefone = Telefone::where('cliente_id', $id)->findOrFail();
+
+
+        $request->nome && $cliente->nome = $request->nome;
+        $request->genero && $cliente->genero = $request->genero;
+        $request->cpf && $cliente->cpf = ClearString::onlyNumber($request->cpf);;
+        $request->rg && $cliente->rg = $request->rg;
+        $request->cep && $cliente->cep = $request->cep;
+        $request->logradouro && $cliente->logradouro = $request->logradouro;
+        $request->numero && $cliente->numero = $request->numero;
+        $request->bairro && $cliente->bairro = $request->bairro;
+        $request->uf && $cliente->uf = $request->uf;
+        $request->cidade && $cliente->cidade = $request->cidade;
+
+        $cliente->save();
+
+        // $request->celular && $telefone->celular = $request->celular;
+        // $request->telResidencial && $telefone->telResidencial = $request->telResidencial;
+        // $request->telComercial && $telefone->telComercial = $request->telComercial;
+
+        // $telefone->save();
     }
 
     /**
@@ -123,8 +178,15 @@ class ClienteController extends Controller
      * @param  \App\Models\Cliente  $cliente
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Cliente $cliente)
+    public function destroy($id)
     {
-        //
+
+        $cliente = Cliente::findOrFail($id);
+
+        $cliente->phone()->delete();
+
+        $cliente->delete();
+
+        return response()->json([], 200);
     }
 }
