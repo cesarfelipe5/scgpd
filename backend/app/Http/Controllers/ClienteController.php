@@ -59,6 +59,8 @@ class ClienteController extends Controller
             'bairro' => 'required',
             'uf' => 'required|max:2',
             'cidade' => 'required',
+            'telefones' => 'array',
+            // 'telefones.numero' => '',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -72,7 +74,7 @@ class ClienteController extends Controller
         }
 
         $cliente = new Cliente;
-        $telefone = new Telefone;
+
 
         $cliente->nome = $request->nome;
         $cliente->genero = $request->genero;
@@ -87,12 +89,15 @@ class ClienteController extends Controller
 
         $cliente->save();
 
-        $telefone->celular = $request->celular;
-        $telefone->telResidencial = $request->telResidencial;
-        $telefone->telComercial = $request->telComercial;
-        $telefone->cliente_id = $cliente->id;
+        foreach ($request->telefones as $phone) {
+            $telefone = new Telefone;
 
-        $telefone->save();
+            $telefone->tipo = $phone['tipo'];
+            $telefone->numero = $phone['numero'];
+            $telefone->cliente_id = $cliente->id;
+
+            $telefone->save();
+        }
 
         return Cliente::with('phone')->findOrFail($cliente->id);
     }
@@ -135,6 +140,7 @@ class ClienteController extends Controller
             'nome' => 'max:255',
             'genero' => new Enum(GenderEnum::class),
             'uf' => 'max:2',
+            'telefones' => 'array'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -149,9 +155,6 @@ class ClienteController extends Controller
 
         $cliente = Cliente::findOrFail($id);
 
-        $telefone = Telefone::where('cliente_id', $id)->findOrFail();
-
-
         $request->nome && $cliente->nome = $request->nome;
         $request->genero && $cliente->genero = $request->genero;
         $request->cpf && $cliente->cpf = ClearString::onlyNumber($request->cpf);;
@@ -165,11 +168,25 @@ class ClienteController extends Controller
 
         $cliente->save();
 
-        // $request->celular && $telefone->celular = $request->celular;
-        // $request->telResidencial && $telefone->telResidencial = $request->telResidencial;
-        // $request->telComercial && $telefone->telComercial = $request->telComercial;
+        if ($request->telefones) {
+            foreach ($request->telefones as $phone) {
+                if (array_key_exists('id', $phone)) {
 
-        // $telefone->save();
+                    $telefone = Telefone::where('id', $phone['id'])->firstOrFail();
+
+                    array_key_exists('tipo', $phone) && $telefone->tipo = $phone['tipo'];
+                    array_key_exists('numero', $phone) && $telefone->numero = $phone['numero'];
+                } else {
+                    $telefone = new Telefone;
+
+                    $telefone->tipo = $phone['tipo'];
+                    $telefone->numero = $phone['numero'];
+                    $telefone->cliente_id = $cliente->id;
+                }
+
+                $telefone->save();
+            }
+        }
     }
 
     /**

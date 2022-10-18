@@ -15,9 +15,8 @@ return new class extends Migration
     {
         Schema::create('telefone', function (Blueprint $table) {
             $table->id();
-            $table->string('celular', 11)->nullable();
-            $table->string('telResidencial', 10)->nullable();
-            $table->string('telComercial', 10)->nullable();
+            $table->string('tipo', 20)->nullable()->default('Residencial');
+            $table->string('numero', 11)->nullable();
 
             $table->unsignedBigInteger('cliente_id');
             $table->foreign('cliente_id')->references('id')->on('cliente');

@@ -15,6 +15,6 @@ class Cliente extends Model
 
     public function phone()
     {
-        return $this->hasOne(Telefone::class);
+        return $this->hasMany(Telefone::class);
     }
 }

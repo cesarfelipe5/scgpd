@@ -11,7 +11,7 @@ class Telefone extends Model
 
     protected $table = 'telefone';
 
-    protected $fillable = ['celular', 'telResidencial', 'telComercial'];
+    protected $fillable = ['tipo', 'numero'];
 
     public function cliet()
     {
