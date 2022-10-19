@@ -15,14 +15,15 @@ return new class extends Migration
     {
         Schema::create('veiculo', function (Blueprint $table) {
             $table->id();
+
             $table->string('renavan', 25);
             $table->string('placa', 7);
             $table->string('modelo', 50);
             $table->string('marca', 50);
             $table->float('debitos', 15, 2);
 
-            $table->unsignedBigInteger('fk_cliente_id');
-            $table->foreign('fk_cliente_id')->references('id')->on('cliente');
+            $table->unsignedBigInteger('cliente_id');
+            $table->foreign('cliente_id')->references('id')->on('cliente');
 
             $table->timestamps();
         });

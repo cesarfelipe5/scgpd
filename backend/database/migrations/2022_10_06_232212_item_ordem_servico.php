@@ -20,11 +20,11 @@ return new class extends Migration
             $table->float('valorDespachante', 15, 2);
             $table->date('dataPrazo');
 
-            $table->unsignedBigInteger('fk_ordem_servico');
-            $table->unsignedBigInteger('fk_servico_prestado');
+            $table->unsignedBigInteger('ordem_servico_id');
+            $table->unsignedBigInteger('servico_prestado_id');
 
-            $table->foreign('fk_ordem_servico')->references('id')->on('ordem_servico');
-            $table->foreign('fk_servico_prestado')->references('id')->on('servico_prestado');
+            $table->foreign('ordem_servico_id')->references('id')->on('ordem_servico');
+            $table->foreign('servico_prestado_id')->references('id')->on('servico_prestado');
 
             $table->timestamps();
         });

@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('financiamento', 25);
             $table->string('conversaoMercoSul', 25);
 
-            $table->unsignedBigInteger('fk_veiculo');
-            $table->foreign('fk_veiculo')->references('id')->on('veiculo');
+            $table->unsignedBigInteger('veiculo_id');
+            $table->foreign('veiculo_id')->references('id')->on('veiculo');
 
             $table->timestamps();
         });

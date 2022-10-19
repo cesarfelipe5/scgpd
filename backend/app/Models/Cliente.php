@@ -17,4 +17,9 @@ class Cliente extends Model
     {
         return $this->hasMany(Telefone::class);
     }
+
+    public function vehicle()
+    {
+        return $this->hasMany(Veiculo::class);
+    }
 }

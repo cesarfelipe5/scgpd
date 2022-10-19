@@ -20,11 +20,11 @@ return new class extends Migration
             $table->float('valor_pagamento', 15, 2);
             $table->timestamp('data_pagamento');
             $table->char('status');
-            $table->unsignedBigInteger('fk_ordem_servico');
-            $table->unsignedBigInteger('fk_tipo_pagamento');
+            $table->unsignedBigInteger('ordem_servico_id');
+            $table->unsignedBigInteger('tipo_pagamento_id');
 
-            $table->foreign('fk_ordem_servico')->references('id')->on('ordem_servico');
-            $table->foreign('fk_tipo_pagamento')->references('id')->on('tipo_pagamento');
+            $table->foreign('ordem_servico_id')->references('id')->on('ordem_servico');
+            $table->foreign('tipo_pagamento_id')->references('id')->on('tipo_pagamento');
 
             $table->timestamps();
         });
