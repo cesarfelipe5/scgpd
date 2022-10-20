@@ -11,10 +11,10 @@ class Veiculo extends Model
 
     protected $table = 'veiculo';
 
-    protected $fillable = ['id', 'renavan', 'placa', 'modelo', 'marca', 'debitos', 'cliente_id'];
+    protected $fillable = ['id', 'renavan', 'placa', 'modelo', 'marca', 'debitos'];
 
     public function client()
     {
-        return $this->belongsTo(Veiculo::class);
+        return $this->belongsTo(Cliente::class, 'cliente_id');
     }
 }

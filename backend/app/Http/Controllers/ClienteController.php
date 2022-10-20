@@ -7,8 +7,6 @@ use App\Utils\ClearString;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\GenderEnum;
-use App\Models\Telefone;
-use App\Utils\ValidatorRequest;
 use Illuminate\Validation\Rules\Enum;
 
 class ClienteController extends Controller
@@ -20,7 +18,7 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        return Cliente::with('phone')->paginate(15);
+        return Cliente::with('phone', 'veiculo')->paginate(15);
     }
 
 
@@ -60,7 +58,6 @@ class ClienteController extends Controller
             'uf' => 'required|max:2',
             'cidade' => 'required',
             'telefones' => 'array',
-            // 'telefones.numero' => '',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -89,15 +86,8 @@ class ClienteController extends Controller
 
         $cliente->save();
 
-        foreach ($request->telefones as $phone) {
-            $telefone = new Telefone;
 
-            $telefone->tipo = $phone['tipo'];
-            $telefone->numero = $phone['numero'];
-            $telefone->cliente_id = $cliente->id;
-
-            $telefone->save();
-        }
+        (new TelefoneController)->storeTelefoneCliente($request, $cliente->id);
 
         return Cliente::with('phone')->findOrFail($cliente->id);
     }
@@ -169,24 +159,10 @@ class ClienteController extends Controller
         $cliente->save();
 
         if ($request->telefones) {
-            foreach ($request->telefones as $phone) {
-                if (array_key_exists('id', $phone)) {
-
-                    $telefone = Telefone::where('id', $phone['id'])->firstOrFail();
-
-                    array_key_exists('tipo', $phone) && $telefone->tipo = $phone['tipo'];
-                    array_key_exists('numero', $phone) && $telefone->numero = $phone['numero'];
-                } else {
-                    $telefone = new Telefone;
-
-                    $telefone->tipo = $phone['tipo'];
-                    $telefone->numero = $phone['numero'];
-                    $telefone->cliente_id = $cliente->id;
-                }
-
-                $telefone->save();
-            }
+            (new TelefoneController)->updateTelefoneCliente($request, $cliente->id);
         }
+
+        return Cliente::with('phone')->where('id', $id)->firstOrFail();
     }
 
     /**
@@ -195,10 +171,9 @@ class ClienteController extends Controller
      * @param  \App\Models\Cliente  $cliente
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
-
-        $cliente = Cliente::findOrFail($id);
+        $cliente = Cliente::where('id', $id)->firstOrFail();
 
         $cliente->phone()->delete();
 

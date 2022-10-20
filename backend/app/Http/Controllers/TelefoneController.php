@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Telefone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TelefoneController extends Controller
 {
@@ -35,7 +36,66 @@ class TelefoneController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $errors = array();
+
+        $rules = [
+            'telefones' => 'array',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        foreach ($request->telefones as $phone) {
+            $telefone = new Telefone;
+
+            $telefone->tipo = $phone['tipo'];
+            $telefone->numero = $phone['numero'];
+            $telefone->cliente_id = $phone['cliente_id'];
+
+            $telefone->save();
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeTelefoneCliente(Request $request, int $cliente_id)
+    {
+        $errors = array();
+
+        $rules = [
+            'telefones' => 'array',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        foreach ($request->telefones as $phone) {
+            $telefone = new Telefone;
+
+            $telefone->tipo = $phone['tipo'];
+            $telefone->numero = $phone['numero'];
+            $telefone->cliente_id = $cliente_id;
+
+            $telefone->save();
+        }
     }
 
     /**
@@ -70,6 +130,50 @@ class TelefoneController extends Controller
     public function update(Request $request, Telefone $telefone)
     {
         //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Telefone  $telefone
+     * @return \Illuminate\Http\Response
+     */
+    public function updateTelefoneCliente(Request $request, int $cliente_id)
+    {
+        $errors = array();
+
+        $rules = [
+            'telefones' => 'array'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        foreach ($request->telefones as $phone) {
+            if (array_key_exists('id', $phone)) {
+
+                $telefone = Telefone::where('id', $phone['id'])->firstOrFail();
+
+                array_key_exists('tipo', $phone) && $telefone->tipo = $phone['tipo'];
+                array_key_exists('numero', $phone) && $telefone->numero = $phone['numero'];
+            } else {
+                $telefone = new Telefone;
+
+                $telefone->tipo = $phone['tipo'];
+                $telefone->numero = $phone['numero'];
+                $telefone->cliente_id = $cliente_id;
+            }
+
+            $telefone->save();
+        }
     }
 
     /**

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('servico_prestado', function (Blueprint $table) {
             $table->id();
 
-            $table->string('nome', 15, 2);
+            $table->string('nome', 15);
             $table->float('valorDespachante', 15, 2);
             $table->float('valorDetran', 15, 2);
 
