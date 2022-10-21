@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pagamento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PagamentoController extends Controller
 {
@@ -14,7 +15,12 @@ class PagamentoController extends Controller
      */
     public function index()
     {
-        //
+        return Pagamento::with('paymentType')->paginate(15);
+    }
+
+    public function list()
+    {
+        return Pagamento::with('paymentType')->get();
     }
 
     /**
@@ -35,7 +41,33 @@ class PagamentoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $errors = array();
+
+        $rules = [
+            'data_pagamento' => 'required',
+            'valor_pagamento' => 'required',
+            'tipo_pagamento' => 'required',
+            'status' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        $pagamento = new Pagamento;
+
+        $pagamento->data_pagamento = $request->data_pagamento;
+        $pagamento->valor_pagamento = $request->valor_pagamento;
+        $pagamento->tipo_pagamento = $request->tipo_pagamento;
+        $pagamento->status = $request->status;
+
+        $pagamento->save();
     }
 
     /**
@@ -44,9 +76,9 @@ class PagamentoController extends Controller
      * @param  \App\Models\Pagamento  $pagamento
      * @return \Illuminate\Http\Response
      */
-    public function show(Pagamento $pagamento)
+    public function show(int $id)
     {
-        //
+        return Pagamento::with('paymentType')->findOrFail($id);
     }
 
     /**
@@ -67,9 +99,33 @@ class PagamentoController extends Controller
      * @param  \App\Models\Pagamento  $pagamento
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Pagamento $pagamento)
+    public function update(Request $request, int $id)
     {
-        //
+        $errors = array();
+
+        $rules = [
+            'id' => 'required|int'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        $pagamento = Pagamento::findOrFail($id);
+
+
+        $request->data_pagamento && $pagamento->data_pagamento = $request->data_pagamento;
+        $request->valor_pagamento && $pagamento->valor_pagamento = $request->valor_pagamento;
+        $request->tipo_pagamento && $pagamento->tipo_pagamento = $request->tipo_pagamento;
+        $request->status && $pagamento->status = $request->status;
+
+        $pagamento->save();
     }
 
     /**
@@ -78,8 +134,12 @@ class PagamentoController extends Controller
      * @param  \App\Models\Pagamento  $pagamento
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Pagamento $pagamento)
+    public function destroy(int $id)
     {
-        //
+        $pagamento = Pagamento::where('id', $id)->firstOrFail();
+
+        $pagamento->delete();
+
+        return response()->json([], 200);
     }
 }

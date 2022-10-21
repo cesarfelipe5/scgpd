@@ -11,7 +11,7 @@ class OrdemServico extends Model
 
     protected $table = 'ordem_servico';
 
-    protected $fillable = ['id', 'valorTotal', 'dataEncerramento', 'valordeVenda', 'financiamento', 'conversaoMercoSul', 'veiculo_id'];
+    protected $fillable = ['valorTotal', 'dataEncerramento', 'valorVenda', 'financiamento', 'conversaoMercoSul', 'veiculo_id'];
 
     public function vehicle()
     {

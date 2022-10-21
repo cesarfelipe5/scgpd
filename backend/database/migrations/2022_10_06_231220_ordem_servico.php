@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->float('valorTotal', 15, 2);
             $table->timestamp('dataEncerramento');
-            $table->float('valordeVenda', 15, 2);
+            $table->float('valorVenda', 15, 2);
             $table->string('financiamento', 25);
             $table->string('conversaoMercoSul', 25);
 

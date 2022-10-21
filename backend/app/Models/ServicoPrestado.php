@@ -11,7 +11,7 @@ class ServicoPrestado extends Model
 
     protected $table = 'servico_prestado';
 
-    protected $fillable = ['id', 'nome', 'valorDespachante', 'valorDetran'];
+    protected $fillable = ['nome', 'valorDespachante', 'valorDetran'];
 
     public function serviceOrderItem()
     {
