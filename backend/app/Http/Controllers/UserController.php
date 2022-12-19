@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -13,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        return User::paginate(15);
     }
 
     /**
@@ -34,7 +37,33 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $errors = array();
+
+        $rules = [
+            'email' => 'required|string|email|max:255|unique:users,email,',
+            'name' => 'required|string',
+            'senha' => 'required|string',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $item) {
+                array_push($errors, $item[0]);
+            }
+
+            return response()->json(['errors' => $errors]);
+        }
+
+        $user = new User();
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = hash_hmac('sha256', $request->senha, env('HASH_KEY'));
+
+        $user->save();
+
+        return $user->createToken('token-access')->plainTextToken;
     }
 
     /**
